@@ -124,7 +124,7 @@ func (r repositorieUser) Register(obj entities.Usuario) *dto.APIRespuestaAccione
 		return &dto.APIRespuestaAcciones{Codigo: 500, Mensaje: "error finalizando la transaccion"}
 	}
 
-	err = helpers.InsertLogs(r.db, "INSERT", "usuarios", usuarioId, "registro creado con exito")
+	err = helpers.InsertLogs(r.db, "INSERT", "usuarios", usuarioId, "registro creado correctamente")
 	if err != nil {
 		_ = helpers.InsertLogsError(r.db, "usuario", "error insertando auditoria "+err.Error())
 		return &dto.APIRespuestaAcciones{Codigo: 500, Mensaje: "error insertando auditoria"}
