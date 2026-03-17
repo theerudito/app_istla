@@ -77,7 +77,7 @@ func main() {
 	handlerProfile := handlers.NewHandlerPerfil(repositorieProfile)
 
 	// REGISTRAR LOS CONTROLADORES
-	controllers := &handlers.Handlers{
+	controllers := &handlers.HandlersRegister{
 		User:         handlerUser,
 		UserRegister: handlerUseregister,
 		Profile:      handlerProfile,

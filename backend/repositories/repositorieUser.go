@@ -33,7 +33,6 @@ func (r repositorieUser) Login(obj dto.UsuarioLoginDTO) *dto.APIRespuestaAccione
 		obj.Identificacion).Scan(&passwordDB)
 
 	if err != nil {
-		_ = helpers.InsertLogsError(r.db, "usuario", "usuario no encontrado "+err.Error())
 		return &dto.APIRespuestaAcciones{Codigo: 404, Mensaje: "usuario no existe"}
 	}
 

@@ -8,7 +8,7 @@ import (
 	"github.com/theerudito/istla/handlers"
 )
 
-func SetupRoutes(app *fiber.App, handlers *handlers.Handlers) {
+func SetupRoutes(app *fiber.App, controller *handlers.HandlersRegister) {
 	allowedOrigins := map[string]bool{
 		os.Getenv("URL_Frontend"): true,
 	}
@@ -26,13 +26,15 @@ func SetupRoutes(app *fiber.App, handlers *handlers.Handlers) {
 
 	v1 := api.Group("/v1")
 
-	v1.Get("/profiles", handlers.Profile.GetProfiles)
+	v1.Get("/profiles", controller.Profile.GetProfiles)
 
-	v1.Post("/login", handlers.User.Login)
-	v1.Post("/register", handlers.User.Register)
+	v1.Post("/login", controller.User.Login)
+	v1.Post("/register", controller.User.Register)
 
-	v1.Get("/post/get_by_user/:id", handlers.UserRegister.GetRegisterByUser)
-	v1.Post("/post", handlers.UserRegister.PostRegister)
-	v1.Put("/post", handlers.UserRegister.PutRegister)
-	v1.Delete("/post/:id", handlers.UserRegister.DeleteRegister)
+	v1.Get("/post/get_by_user/:id", controller.UserRegister.GetRegisterByUser)
+	v1.Post("/post", controller.UserRegister.PostRegister)
+	v1.Put("/post", controller.UserRegister.PutRegister)
+	v1.Delete("/post/:id", controller.UserRegister.DeleteRegister)
+
+	v1.Get("/:folder/:file", handlers.ResourceController)
 }

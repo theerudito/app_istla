@@ -1,6 +1,6 @@
 package handlers
 
-type Handlers struct {
+type HandlersRegister struct {
 	User         *HandlerUser
 	UserRegister *HandlerPostUser
 	Profile      *HandlerPerfil

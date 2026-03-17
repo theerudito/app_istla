@@ -1,12 +1,12 @@
 package dto
 
 type UsuarioDTO struct {
-	UsuarioId      uint   `json:"id_usuario"`
+	UsuarioId      int    `json:"id_usuario"`
 	Identificacion string `json:"identificacion"`
 	Nombres        string `json:"nombres"`
 	Apellidos      string `json:"apellidos"`
 	Email          string `json:"email"`
-	PerfilId       uint   `json:"id_perfil"`
+	PerfilId       int    `json:"id_perfil"`
 	Perfil         string `json:"perfil"`
 }
 

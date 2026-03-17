@@ -1,12 +1,14 @@
 package dto
 
 type PostUsuarioDTO struct {
-	PostUserId uint `json:"post_user_id"`
+	PostUserId int `json:"post_user_id"`
+
+	Descripcion string `json:"descripcion"`
 
 	Usuario   string `json:"usuario"`
-	UsuarioId string `json:"usuario_id"`
+	UsuarioId int    `json:"usuario_id"`
 
-	StorageId string `json:"id_storage"`
+	StorageId int    `json:"id_storage"`
 	Url       string `json:"url"`
 
 	UsuarioCreacion     string `json:"usuario_creacion"`
