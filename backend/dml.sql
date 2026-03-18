@@ -1,1 +1,4 @@
-CREATE DATABASE istla;
+INSERT
+INTO perfiles (descripcion)
+VALUES ('DOCENTE'),
+       ('ESTUDIANTE');

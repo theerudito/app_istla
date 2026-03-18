@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+
+  backend:
+    build: .
+    container_name: backend_istla
+    ports:
+      - "1000:1000"
+    volumes:
+      - data:/app
+    working_dir: /app
+    stdin_open: true
+    tty: true
+    restart: always
+    environment:
+      URL_Frontend: http://localhost:5173
+      ServerDB: db
+      PortDB: 5432
+      UserDB: postgres
+      PasswordBD: 1020
+      NameDB: istla
+      PortServer: 2000
+      Secret_Key: theerudito
+      Source_Path: resources
+      IMAGEN: imagen
+      PDF: pdf
+      Url: http://127.0.0.1:2000/api/v1/
+    depends_on:
+      - db
+  db:
+    image: postgres:latest
+    container_name: db_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1020
+      POSTGRES_DB: istla
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  data:
+  db_data:
