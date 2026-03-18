@@ -8,22 +8,27 @@ import (
 
 func CreateFolder() error {
 
-	directorioPrincipal := "resources"
+	sourcePath := os.Getenv("Source_Path")
+	pdfFolder := os.Getenv("PDF")
+	imgFolder := os.Getenv("IMAGEN")
 
-	subdirectorios := []string{
-		"pdf", "imagen",
+	if sourcePath == "" || pdfFolder == "" || imgFolder == "" {
+		return fmt.Errorf("error: Source_Path, PDF o IMAGEN no están definidos en las variables de entorno")
 	}
 
-	if err := os.MkdirAll(directorioPrincipal, os.ModePerm); err != nil {
-		return fmt.Errorf("error al crear el directorio principal: %w", err)
+	subdirectorios := []string{pdfFolder, imgFolder}
+
+	if err := os.MkdirAll(sourcePath, os.ModePerm); err != nil {
+		return fmt.Errorf("error al crear el directorio principal (%s): %w", sourcePath, err)
 	}
 
 	for _, sub := range subdirectorios {
-		path := filepath.Join(directorioPrincipal, sub)
+		path := filepath.Join(sourcePath, sub)
 		if err := os.MkdirAll(path, os.ModePerm); err != nil {
 			return fmt.Errorf("error al crear el subdirectorio %s: %w", sub, err)
 		}
 	}
 
+	fmt.Printf("Directorios verificados/creados exitosamente en: %s\n", sourcePath)
 	return nil
 }

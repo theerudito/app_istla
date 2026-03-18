@@ -4,44 +4,30 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 )
 
 func SaveImageToDirectory(file []byte, name string, ext string, folder string) (string, error) {
-
 	if len(file) == 0 {
 		return "", fmt.Errorf("el archivo está vacío")
 	}
 
 	root := os.Getenv("Source_Path")
-	baseURL := strings.TrimRight(os.Getenv("URL"), "/")
+	baseURL := strings.TrimRight(os.Getenv("Url"), "/")
 
 	if root == "" || baseURL == "" {
-		return "", fmt.Errorf("Source_Path o URL no están definidos")
+		return "", fmt.Errorf("Source_Path o Url no están definidos (Root: %s, Base: %s)", root, baseURL)
 	}
 
-	imageFolder := os.Getenv("IMAGEN")
-	pdfFolder := os.Getenv("PDF")
+	if folder == "" {
+		return "", fmt.Errorf("el parámetro folder llegó vacío")
+	}
 
-	var dir string
-	var relativePath string
+	dir := filepath.Join(root, folder)
 
-	switch folder {
-
-	case imageFolder:
-
-		dir = filepath.Join(root, imageFolder)
-		relativePath = imageFolder
-
-	case pdfFolder:
-
-		dir = filepath.Join(root, pdfFolder)
-		relativePath = pdfFolder
-
-	default:
-		return "", fmt.Errorf("folder inválido: %s", folder)
+	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+		return "", fmt.Errorf("error creando carpeta %s: %w", dir, err)
 	}
 
 	fileName := name + ext
@@ -49,29 +35,36 @@ func SaveImageToDirectory(file []byte, name string, ext string, folder string) (
 
 	err := os.WriteFile(filePath, file, 0644)
 	if err != nil {
-		return "", fmt.Errorf("error al guardar archivo: %w", err)
+		return "", fmt.Errorf("error al guardar archivo en %s: %w", filePath, err)
 	}
 
-	publicURL := baseURL + "/" + path.Join(relativePath, fileName)
+	publicURL := fmt.Sprintf("%s/%s/%s/%s", baseURL, root, folder, fileName)
 
 	return publicURL, nil
 }
 
 func DeleteImageFromDirectory(relativePath string) error {
 
-	log.Println(relativePath)
-
 	root := os.Getenv("Source_Path")
 	if root == "" {
-		return fmt.Errorf("Source_Path no está definido")
+		return fmt.Errorf("error: Source_Path no está definido en el entorno")
 	}
 
-	filePath := filepath.Join(root, relativePath)
+	cleanPath := strings.Replace(relativePath, os.Getenv("Url")+root+"/", "", 1)
+
+	filePath := filepath.Join(root, cleanPath)
+
+	log.Printf("Intentando eliminar archivo en la ruta física: %s", filePath)
 
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		return fmt.Errorf("el archivo no existe: %s", filePath)
+		return fmt.Errorf("el archivo no existe físicamente en la ruta: %s", filePath)
 	}
 
-	return os.Remove(filePath)
+	err := os.Remove(filePath)
+	if err != nil {
+		return fmt.Errorf("no se pudo eliminar el archivo %s: %w", filePath, err)
+	}
 
+	log.Println("Archivo eliminado exitosamente")
+	return nil
 }

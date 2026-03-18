@@ -36,5 +36,5 @@ func SetupRoutes(app *fiber.App, controller *handlers.HandlersRegister) {
 	v1.Put("/post", controller.UserRegister.PutRegister)
 	v1.Delete("/post/:id", controller.UserRegister.DeleteRegister)
 
-	v1.Get("/:folder/:file", handlers.ResourceController)
+	v1.Get("/resources/:folder/:file", handlers.ResourceController)
 }

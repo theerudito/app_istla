@@ -19,7 +19,7 @@ func main() {
 	// LEER LAS VARIABLES DE ENTORNO
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
+		log.Println("Aviso: No se encontró el archivo .env, usando variables de entorno del sistema")
 	}
 
 	// CREAR INSTANCIA DE FIBER

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -8,28 +9,43 @@ import (
 )
 
 func ResourceController(c *fiber.Ctx) error {
-
 	root := os.Getenv("Source_Path")
 	if root == "" {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Source_Path no definido"})
+		root = "resources"
 	}
 
 	fileName := c.Params("file")
-	folder := c.Params("folder")
+	folderParam := c.Params("folder")
+
+	pdfDir := os.Getenv("PDF")
+	imgDir := os.Getenv("IMAGEN")
 
 	var filePath string
 
-	switch folder {
-	case "pdf":
-		filePath = filepath.Join(root, os.Getenv("PDF"), fileName)
-	case "imagen":
-		filePath = filepath.Join(root, os.Getenv("IMAGEN"), fileName)
+	switch folderParam {
+	case "pdf", pdfDir:
+
+		if pdfDir == "" {
+			pdfDir = "pdf"
+		}
+		filePath = filepath.Join(root, pdfDir, fileName)
+
+	case "imagen", imgDir:
+		if imgDir == "" {
+			imgDir = "imagen"
+		}
+		filePath = filepath.Join(root, imgDir, fileName)
+
 	default:
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "folder inválido"})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": fmt.Sprintf("Folder '%s' no es válido", folderParam),
+		})
 	}
 
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "archivo no encontrado"})
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "El archivo no existe en la ruta: " + filePath,
+		})
 	}
 
 	return c.SendFile(filePath)

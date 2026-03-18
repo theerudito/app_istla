@@ -21,17 +21,22 @@ var (
 )
 
 func ConnectarDB() (*DB, error) {
-
 	var err error
 
 	once.Do(func() {
 
-		dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", os.Getenv("ServerDB"), os.Getenv("PortDB"), os.Getenv("UserDB"), os.Getenv("PasswordBD"), os.Getenv("NameDB"))
+		host := os.Getenv("ServerDB")
+		port := os.Getenv("PortDB")
+		user := os.Getenv("UserDB")
+		pass := os.Getenv("PasswordBD")
+		name := os.Getenv("NameDB")
+
+		dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+			host, port, user, pass, name)
 
 		conn, connErr := sql.Open("postgres", dsn)
-
 		if connErr != nil {
-			err = fmt.Errorf("%s: %w", "Error conectar a la db", connErr)
+			err = fmt.Errorf("error al abrir sql.Open: %w", connErr)
 			return
 		}
 
@@ -39,15 +44,20 @@ func ConnectarDB() (*DB, error) {
 		conn.SetMaxOpenConns(10)
 		conn.SetMaxIdleConns(5)
 
-		if err = retryPing(conn); err != nil {
-			err = fmt.Errorf("%s: %w", "Error al cerrar la connecion", err)
+		if pingErr := retryPing(conn); pingErr != nil {
+			err = pingErr
+			conn.Close()
 			return
 		}
 
 		instance = &DB{conn: conn}
 	})
 
-	return instance, err
+	if err != nil {
+		return nil, err
+	}
+
+	return instance, nil
 }
 
 func retryPing(conn *sql.DB) error {

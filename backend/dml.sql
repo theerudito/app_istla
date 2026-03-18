@@ -1,4 +1,5 @@
-INSERT
-INTO perfiles (descripcion)
-VALUES ('DOCENTE'),
-       ('ESTUDIANTE');
+INSERT INTO
+  perfiles (descripcion)
+VALUES
+  ('DOCENTE'),
+  ('ESTUDIANTE') ON CONFLICT DO NOTHING;

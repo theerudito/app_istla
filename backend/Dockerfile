@@ -1,26 +1,37 @@
 
-FROM golang:1.24-alpine AS builder
+FROM golang:1.26-alpine AS builder
 
 RUN apk add --no-cache gcc musl-dev
 
 WORKDIR /app
 
+COPY go.mod go.sum ./
+RUN go mod download
+
 COPY . .
 
-RUN go build -o istla main.go
+
+RUN CGO_ENABLED=0 GOOS=linux go build -o istla main.go
+
 
 FROM alpine:latest
+
+RUN apk add --no-cache ca-certificates postgresql-client
 
 WORKDIR /app
 
 COPY --from=builder /app/istla .
 COPY --from=builder /app/ddl.sql .
 COPY --from=builder /app/dml.sql .
+COPY --from=builder /app/init.sh .
 
-RUN apk add --no-cache postgresql-client
+COPY .env .
 
-COPY init.sh /app/init.sh
+RUN mkdir -p resources imagen pdf
 
-RUN chmod +x /app/init.sh
+RUN chmod +x /app/init.sh /app/istla
 
-CMD ["./init.sh"]
+
+EXPOSE 2000
+
+CMD ["./istla"]
