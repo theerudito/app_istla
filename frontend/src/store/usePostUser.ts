@@ -1,8 +1,9 @@
 import {create} from "zustand";
 import type {PostUsuario, PostUsuarioDTO} from "../models/post-usuario.ts";
-import {DELETE_UserPost, GET_UserPost, POST_UserPost} from "../http/FetchingPostLogin.ts";
+import {DELETE_UserPost, GET_UserPost, POST_UserPost, PUT_UserPost} from "../http/FetchingPostUser.ts";
 import {useModalPost} from "./useModal.ts";
 import {ObtenerToken} from "../helpers/JWTDecore.ts";
+import {toast} from "sonner";
 
 const initialPostUser = (): PostUsuario => ({
     post_user_id: 0,
@@ -23,6 +24,7 @@ type Data = {
     DeletePost: (id:number) => void;
     isEditing: boolean;
     isLoading: boolean;
+    isPDF: boolean;
     reset: () => void;
 };
 
@@ -32,22 +34,23 @@ export const useUserPost = create<Data>()((set, get) => {
         list_post_user: [],
         isEditing: false,
         isLoading: false,
+        isPDF: true,
 
         GetPostByUser: async () => {
-
             const result = await GET_UserPost(Number(ObtenerToken()?.user));
 
             if (result.success && Array.isArray(result.data?.resultado)) {
-
                 set({
-                    list_post_user: result.data.resultado
+                    list_post_user: result.data.resultado,
                 });
 
             } else {
-                console.error(result.error);
+                set({
+                    list_post_user: [],
+                });
             }
 
-            return result.error;
+            return result.error || null;
         },
 
         GetOne: async (obj: PostUsuarioDTO) => {
@@ -69,47 +72,62 @@ export const useUserPost = create<Data>()((set, get) => {
         },
 
         SendData: async () => {
-            const { form_post_user } = get();
+            const { form_post_user, isEditing } = get();
             const token = ObtenerToken();
 
-            if (token) {
+            if (!token) {
+                toast("No se pudo obtener el token o decodificarlo.");
+                return;
+            }
 
-                const formData = new FormData();
-                formData.append("post_user_id", form_post_user.post_user_id.toString());
-                formData.append("descripcion", form_post_user.descripcion);
-                formData.append("usuario_id", token.user.toString());
-                formData.append("usuario_modificacion", form_post_user.usuario_modificacion);
-                formData.append("usuario_creacion", form_post_user.usuario_creacion);
+            if (!isEditing && !form_post_user.file) {
+                toast("No se seleccionó ningún archivo.");
+                return;
+            }
 
-                if (form_post_user.file) {
-                    const fileBlob = new Blob([form_post_user.file], { type: 'application/pdf' });
-                    formData.append("file", fileBlob, "file.pdf");
-                } else {
-                    console.log("No se seleccionó ningún archivo.");
-                }
+            const formData = new FormData();
+            formData.append("post_user_id", form_post_user.post_user_id.toString());
+            formData.append("descripcion", form_post_user.descripcion);
+            formData.append("usuario_id", token.user.toString());
+            formData.append("usuario_modificacion", form_post_user.usuario_modificacion);
+            formData.append("usuario_creacion", form_post_user.usuario_creacion);
 
-                const result = await POST_UserPost(formData);
-                if (!result.success) {
-                    console.error("Error al enviar los datos:", result.error);
-                    return result.error;
-                }
+            if (form_post_user.file && !isEditing) {
+                const fileBlob = new Blob([form_post_user.file], { type: "application/pdf" });
+                formData.append("file", fileBlob, "file.pdf");
+            }
 
+            let result;
+
+            if (isEditing) {
+                result = await PUT_UserPost(formData);
+            } else {
+                result = await POST_UserPost(formData);
+            }
+
+            if (result.success) {
+                toast(result.data.mensaje);
                 get().reset();
                 get().GetPostByUser();
-
             } else {
-                console.log("No se pudo obtener el token o decodificarlo.");
-                return;
+                toast(result.error);
             }
         },
 
         DeletePost: async (id: number) => {
-            const result = await DELETE_UserPost(id)
+            const result = await DELETE_UserPost(id);
+
             if (result.success) {
-                get().GetPostByUser()
+                get().GetPostByUser();
+
+                if (result.data.codigo === 200) {
+                    toast(result.data.mensaje);
+                } else {
+                    toast(result.data.mensaje);
+                }
+
                 return result.data;
             }
-            return result.error;
         },
 
         reset: () => set({form_post_user: initialPostUser()}),

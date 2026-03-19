@@ -173,20 +173,19 @@ func (r repositoriePostUser) Create_PostUser(obj entities.PostUsuario) *dto.APIR
 }
 
 func (r repositoriePostUser) Update_PostUser(obj entities.PostUsuario) *dto.APIRespuestaAcciones {
-
 	var (
-		err            error
-		tx             *sql.Tx
-		existeUser     int
-		storageId      int
-		fileName       string
-		url, extension string
-		uuidImage      = uuid.New().String()
+		err                   error
+		tx                    *sql.Tx
+		existeUser            int
+		storageId, userPostId int
+		fileName              string
+		url                   string
+		extension             string
+		uuidImage             = uuid.New().String()
 	)
 
 	tx, err = r.db.Begin()
 	if err != nil {
-		_ = helpers.InsertLogsError(r.db, "post usuario", "error iniciando transaccion "+err.Error())
 		return &dto.APIRespuestaAcciones{Codigo: 500, Mensaje: "error iniciando transaccion"}
 	}
 
@@ -196,40 +195,32 @@ func (r repositoriePostUser) Update_PostUser(obj entities.PostUsuario) *dto.APIR
 		}
 	}()
 
-	queryPost := `SELECT id_storage FROM post_usuario WHERE id_post_usuario = $1`
-	err = tx.QueryRow(queryPost, obj.PostUserId).Scan(&storageId)
-
+	queryPost := `SELECT id_post_usuario, id_storage FROM post_usuario WHERE id_post_usuario = $1`
+	err = tx.QueryRow(queryPost, obj.PostUserId).Scan(&userPostId, &storageId)
 	if errors.Is(err, sql.ErrNoRows) {
 		return &dto.APIRespuestaAcciones{Codigo: 404, Mensaje: "el post no existe"}
 	}
-
 	if err != nil {
 		return &dto.APIRespuestaAcciones{Codigo: 500, Mensaje: "error consultando el post"}
 	}
 
 	queryUser := `SELECT COUNT(*) FROM usuarios WHERE id_usuario = $1`
 	err = tx.QueryRow(queryUser, obj.UsuarioId).Scan(&existeUser)
-
 	if existeUser == 0 {
 		return &dto.APIRespuestaAcciones{Codigo: 404, Mensaje: "el usuario no existe"}
 	}
 
 	if obj.File != nil {
-
 		queryStorage := `SELECT nombre || extencion AS oldFile FROM storage WHERE id_storage = $1`
 		err = tx.QueryRow(queryStorage, storageId).Scan(&fileName)
-
 		extension, err = helpers.ExtencionFile(obj.File)
 		if err != nil {
 			return &dto.APIRespuestaAcciones{Codigo: 500, Mensaje: "error obteniendo extension"}
 		}
-
 		url, err = helpers.SaveImageToDirectory(obj.File, uuidImage, extension, os.Getenv("PDF"))
 		if err != nil {
-			_ = helpers.InsertLogsError(r.db, "storage", "error guardando archivo "+err.Error())
 			return &dto.APIRespuestaAcciones{Codigo: 500, Mensaje: "error guardando archivo"}
 		}
-
 		objStorage := dto.StorageItemDTO{
 			TX:        tx,
 			StorageId: storageId,
@@ -238,10 +229,8 @@ func (r repositoriePostUser) Update_PostUser(obj entities.PostUsuario) *dto.APIR
 			Url:       url,
 			Option:    "UPDATE",
 		}
-
 		_, err = helpers.StorageManager(objStorage)
 		if err != nil {
-			_ = helpers.InsertLogsError(r.db, "storage", err.Error())
 			return &dto.APIRespuestaAcciones{Codigo: 500, Mensaje: err.Error()}
 		}
 	}
@@ -249,35 +238,24 @@ func (r repositoriePostUser) Update_PostUser(obj entities.PostUsuario) *dto.APIR
 	update := `
 	UPDATE post_usuario
 	SET
-		descripcion 			= $1,
-		id_usuario 				= $2,
-		usuario_modificacion 	= $3,
-		fecha_modificacion 		= NOW()
-	WHERE id_post_usuario 		= $4`
+		descripcion = $1,
+		id_usuario = $2,
+		usuario_modificacion = $3,
+		fecha_modificacion = NOW()
+	WHERE id_post_usuario = $4`
 
-	_, err = tx.Exec(
-		update,
-		strings.ToUpper(obj.Descripcion),
-		obj.UsuarioId,
-		obj.UsuarioCreacion,
-		obj.PostUserId,
-	)
-
+	_, err = tx.Exec(update, strings.ToUpper(obj.Descripcion), obj.UsuarioId, obj.UsuarioCreacion, userPostId)
 	if err != nil {
-		_ = helpers.InsertLogsError(r.db, "post usuario", "error actualizando "+err.Error())
 		return &dto.APIRespuestaAcciones{Codigo: 500, Mensaje: "error actualizando registro"}
 	}
 
 	err = helpers.InsertLogs(r.db, "UPDATE", "post usuario", obj.PostUserId, "registro actualizado")
 	if err != nil {
-		_ = helpers.InsertLogsError(r.db, "post usuario", "error guardando auditoria "+err.Error())
 		return &dto.APIRespuestaAcciones{Codigo: 500, Mensaje: "error guardando auditoria"}
 	}
 
 	err = tx.Commit()
-
 	if err != nil {
-		_ = helpers.InsertLogsError(r.db, "post usuario", "error finalizando transaccion "+err.Error())
 		return &dto.APIRespuestaAcciones{Codigo: 500, Mensaje: "error finalizando transaccion"}
 	}
 
@@ -285,7 +263,6 @@ func (r repositoriePostUser) Update_PostUser(obj entities.PostUsuario) *dto.APIR
 		path := os.Getenv("PDF") + "/" + fileName
 		err = helpers.DeleteImageFromDirectory(path)
 		if err != nil {
-			_ = helpers.InsertLogsError(r.db, "storage", "error borrando imagen anterior "+err.Error())
 			return &dto.APIRespuestaAcciones{Codigo: 500, Mensaje: "error borrando imagen anterior"}
 		}
 	}

@@ -29,6 +29,5 @@ func CreateFolder() error {
 		}
 	}
 
-	fmt.Printf("Directorios verificados/creados exitosamente en: %s\n", sourcePath)
 	return nil
 }

@@ -61,7 +61,6 @@ func (r repositorieUser) Login(obj dto.UsuarioLoginDTO) *dto.APIRespuestaAccione
 }
 
 func (r repositorieUser) Register(obj entities.Usuario) *dto.APIRespuestaAcciones {
-
 	var (
 		err               error
 		existe, usuarioId int
@@ -86,14 +85,16 @@ func (r repositorieUser) Register(obj entities.Usuario) *dto.APIRespuestaAccione
 		FROM usuarios 
 		WHERE identificacion = $1`,
 		strings.ToUpper(obj.Identificacion)).Scan(&existe)
-
 	if err != nil {
 		_ = helpers.InsertLogsError(r.db, "usuario", "error ejecutando la consulta "+err.Error())
 		return &dto.APIRespuestaAcciones{Codigo: 500, Mensaje: "error ejecutando la consulta"}
 	}
 
 	if existe > 0 {
-		return &dto.APIRespuestaAcciones{Codigo: 409, Mensaje: "ya existe un usuario registrado con la identificacion " + obj.Identificacion}
+		return &dto.APIRespuestaAcciones{
+			Codigo:  409,
+			Mensaje: "ya existe un usuario registrado con la identificacion " + obj.Identificacion,
+		}
 	}
 
 	password, err = helpers.EncriptarDato(obj.Password)
@@ -102,13 +103,10 @@ func (r repositorieUser) Register(obj entities.Usuario) *dto.APIRespuestaAccione
 		return &dto.APIRespuestaAcciones{Codigo: 500, Mensaje: "error encriptando la contraseña"}
 	}
 
-	queryInsert := `
-	INSERT INTO usuarios(identificacion, nombres, apellidos, email, password, id_perfil)
-	VALUES ($1, $2, $3, $4, $5, $6)
-	RETURNING id_usuario;`
-
-	err = tx.QueryRow(
-		queryInsert,
+	err = tx.QueryRow(`
+		INSERT INTO usuarios(identificacion, nombres, apellidos, email, password, id_perfil)
+		VALUES ($1, $2, $3, $4, $5, $6)
+		RETURNING id_usuario`,
 		strings.ToUpper(obj.Identificacion),
 		strings.ToUpper(obj.Nombres),
 		strings.ToUpper(obj.Apellidos),
@@ -116,7 +114,6 @@ func (r repositorieUser) Register(obj entities.Usuario) *dto.APIRespuestaAccione
 		password,
 		obj.PerfilId,
 	).Scan(&usuarioId)
-
 	if err != nil {
 		_ = helpers.InsertLogsError(r.db, "usuario", "error insertando el registro "+err.Error())
 		return &dto.APIRespuestaAcciones{Codigo: 500, Mensaje: "error insertando el registro"}
@@ -134,7 +131,10 @@ func (r repositorieUser) Register(obj entities.Usuario) *dto.APIRespuestaAccione
 		return &dto.APIRespuestaAcciones{Codigo: 500, Mensaje: "error insertando auditoria"}
 	}
 
-	token, err = helpers.GenerateToken(dto.UsuarJWT{UsuarioId: usuarioId, Nombres: helpers.ObtenerPalabra(strings.ToUpper(obj.Nombres), strings.ToUpper(obj.Apellidos))})
+	token, err = helpers.GenerateToken(dto.UsuarJWT{
+		UsuarioId: usuarioId,
+		Nombres:   helpers.ObtenerPalabra(strings.ToUpper(obj.Nombres), strings.ToUpper(obj.Apellidos)),
+	})
 	if err != nil {
 		_ = helpers.InsertLogsError(r.db, "usuario", "error generando token "+err.Error())
 		return &dto.APIRespuestaAcciones{Codigo: 500, Mensaje: "error generando token"}

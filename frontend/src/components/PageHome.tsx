@@ -19,7 +19,7 @@ export default function PagueHome() {
     }, [GetPostByUser])
 
     const handleView = (url: string) => {
-        if (!url) return;
+       if (!url) return;
         setShowPDF(url);
     };
 
@@ -38,6 +38,7 @@ export default function PagueHome() {
                             <Plus size={18}/>
                             Nuevo
                         </button>
+
                     </div>
 
                     <div

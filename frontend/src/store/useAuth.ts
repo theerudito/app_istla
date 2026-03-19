@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { POST_Login, POST_Register } from "../http/FetchingLogin.ts";
 import type {LoginDTO, User} from "../models/usuario.ts";
+import {toast} from "sonner";
 
 const initialLogin = (): LoginDTO => ({
     identificacion: "",
@@ -41,30 +42,40 @@ export const useAuth = create<Data>((set, get) => ({
             localStorage.setItem("token", JSON.stringify(result.data?.mensaje));
             set({ isLogin: true });
             get().reset();
-            return result.data;
         }
 
-        localStorage.removeItem("token");
-        set({ isLogin: false });
-        return result.error;
+        if (result.data.codigo != 200) {
+            toast(result.data.mensaje);
+            localStorage.removeItem("token");
+            set({ isLogin: false });
+            return;
+        }
     },
 
     Register: async () => {
         const { form_register } = get();
-
-        form_register.id_perfil = 1
+        form_register.id_perfil = 1;
 
         const result = await POST_Register(form_register);
 
         if (result.success) {
-            localStorage.setItem("token", JSON.stringify(result.data?.mensaje));
-            set({ isLogin: true });
-            get().reset();
-            return result.data;
+            if (result.data.codigo === 200) {
+                localStorage.setItem("token", JSON.stringify(result.data.mensaje));
+                set({ isLogin: true });
+                get().reset();
+                toast(result.data.mensaje);
+                return result.data;
+            } else {
+                toast(result.data.mensaje);
+                localStorage.removeItem("token");
+                set({ isLogin: false });
+                return result.data;
+            }
+        } else {
+            localStorage.removeItem("token");
+            set({ isLogin: false });
+            return;
         }
-        localStorage.removeItem("token");
-        set({ isLogin: false });
-        return result.error;
     },
 
     Logout: () => {
