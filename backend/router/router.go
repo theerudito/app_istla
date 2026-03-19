@@ -31,10 +31,10 @@ func SetupRoutes(app *fiber.App, controller *handlers.HandlersRegister) {
 	v1.Post("/login", controller.User.Login)
 	v1.Post("/register", controller.User.Register)
 
-	v1.Get("/post/get_by_user/:id", controller.UserRegister.GetRegisterByUser)
-	v1.Post("/post", controller.UserRegister.PostRegister)
-	v1.Put("/post", controller.UserRegister.PutRegister)
-	v1.Delete("/post/:id", controller.UserRegister.DeleteRegister)
+	v1.Get("/post/get_by_user/:id", controller.UserPost.GetRegisterByUser)
+	v1.Post("/post", controller.UserPost.PostRegister)
+	v1.Put("/post", controller.UserPost.PutRegister)
+	v1.Delete("/post/:id", controller.UserPost.DeleteRegister)
 
 	v1.Get("/resources/:folder/:file", handlers.ResourceController)
 }

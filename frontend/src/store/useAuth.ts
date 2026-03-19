@@ -63,7 +63,6 @@ export const useAuth = create<Data>((set, get) => ({
                 localStorage.setItem("token", JSON.stringify(result.data.mensaje));
                 set({ isLogin: true });
                 get().reset();
-                toast(result.data.mensaje);
                 return result.data;
             } else {
                 toast(result.data.mensaje);
