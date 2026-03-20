@@ -45,19 +45,17 @@ func SaveImageToDirectory(file []byte, name string, ext string, folder string) (
 
 func DeleteImageFromDirectory(relativePath string) error {
 
-	root := os.Getenv("Source_Path")
-	if root == "" {
-		return fmt.Errorf("error: Source_Path no está definido en el entorno")
+	pdfPath := os.Getenv("PDF")
+	if pdfPath == "" {
+		return fmt.Errorf("error: la variable PDF no está definida en el entorno")
 	}
 
-	cleanPath := strings.Replace(relativePath, os.Getenv("Url")+root+"/", "", 1)
-
-	filePath := filepath.Join(root, cleanPath)
-
+	filePath := filepath.Join(pdfPath)
 	log.Printf("Intentando eliminar archivo en la ruta física: %s", filePath)
 
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		return fmt.Errorf("el archivo no existe físicamente en la ruta: %s", filePath)
+		log.Printf("El archivo no existe físicamente: %s", filePath)
+		return nil
 	}
 
 	err := os.Remove(filePath)
@@ -65,6 +63,6 @@ func DeleteImageFromDirectory(relativePath string) error {
 		return fmt.Errorf("no se pudo eliminar el archivo %s: %w", filePath, err)
 	}
 
-	log.Println("Archivo eliminado exitosamente")
+	log.Println("Archivo eliminado exitosamente:", filePath)
 	return nil
 }

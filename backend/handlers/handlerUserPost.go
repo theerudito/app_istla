@@ -94,54 +94,52 @@ func (cur *HandlerUserPost) PutRegister(c *fiber.Ctx) error {
 	usuarioIdString, _ := strconv.Atoi(c.FormValue("usuario_id"))
 	postUserIdString, _ := strconv.Atoi(c.FormValue("post_user_id"))
 	register.UsuarioId = usuarioIdString
-	register.UsuarioId = postUserIdString
+	register.PostUserId = postUserIdString
 	register.Descripcion = c.FormValue("descripcion")
 	register.UsuarioModificacion = c.FormValue("usuario_modificacion")
 
 	fileHeader, err := c.FormFile("file")
+	if err == nil && fileHeader != nil {
+		const maxFileSize = 2 * 1024 * 1024 // 2MB
+		if fileHeader.Size > maxFileSize {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "El archivo no puede superar los 2MB",
+			})
+		}
 
-	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Debe enviar el archivo PDF",
-		})
+		file, err := fileHeader.Open()
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": "No se pudo abrir el archivo",
+			})
+		}
+		defer file.Close()
+
+		fileBytes, err := io.ReadAll(file)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": "No se pudo leer el archivo",
+			})
+		}
+
+		mimeType := http.DetectContentType(fileBytes[:512])
+		if mimeType != "application/pdf" {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "Solo se permiten archivos PDF",
+			})
+		}
+
+		if len(fileBytes) < 4 || string(fileBytes[:4]) != "%PDF" {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "El archivo no es un PDF válido",
+			})
+		}
+
+		register.File = fileBytes
+	} else {
+
+		register.File = nil
 	}
-
-	const maxFileSize = 2 * 1024 * 1024 // 2MB
-	if fileHeader.Size > maxFileSize {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "El archivo no puede superar los 2MB",
-		})
-	}
-
-	file, err := fileHeader.Open()
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "No se pudo abrir el archivo",
-		})
-	}
-	defer file.Close()
-
-	fileBytes, err := io.ReadAll(file)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "No se pudo leer el archivo",
-		})
-	}
-
-	mimeType := http.DetectContentType(fileBytes[:512])
-	if mimeType != "application/pdf" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Solo se permiten archivos PDF",
-		})
-	}
-
-	if string(fileBytes[:4]) != "%PDF" {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "El archivo no es un PDF válido",
-		})
-	}
-
-	register.File = fileBytes
 
 	obj := cur.Service.Update_PostUser(register)
 
