@@ -27,7 +27,7 @@ COPY --from=builder /app/init.sh .
 
 COPY .env .
 
-RUN mkdir -p resources imagen pdf
+RUN mkdir -p /app/resources /app/imagen /app/pdf
 
 RUN chmod +x /app/init.sh /app/istla
 

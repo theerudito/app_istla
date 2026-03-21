@@ -13,6 +13,10 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      volumes:
+      - ./resources:/app/resources
+      - ./imagen:/app/imagen
+      - ./pdf:/app/pdf
     restart: always
 
   db:
