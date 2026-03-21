@@ -25,7 +25,6 @@ func SaveImageToDirectory(file []byte, name string, ext string, folder string) (
 	}
 
 	dir := filepath.Join(root, folder)
-
 	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
 		return "", fmt.Errorf("error creando carpeta %s: %w", dir, err)
 	}
@@ -43,14 +42,13 @@ func SaveImageToDirectory(file []byte, name string, ext string, folder string) (
 	return publicURL, nil
 }
 
-func DeleteImageFromDirectory(relativePath string) error {
-
-	pdfPath := os.Getenv("PDF")
-	if pdfPath == "" {
-		return fmt.Errorf("error: la variable PDF no está definida en el entorno")
+func DeleteImageFromDirectory(folder string, fileName string) error {
+	root := os.Getenv("Source_Path")
+	if root == "" {
+		return fmt.Errorf("error: la variable Source_Path no está definida en el entorno")
 	}
 
-	filePath := filepath.Join(pdfPath)
+	filePath := filepath.Join(root, folder, fileName)
 	log.Printf("Intentando eliminar archivo en la ruta física: %s", filePath)
 
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {

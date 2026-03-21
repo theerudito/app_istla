@@ -274,7 +274,8 @@ func (r repositoriePostUser) Update_PostUser(obj entities.PostUsuario) *dto.APIR
 			return &dto.APIRespuestaAcciones{Codigo: 500, Mensaje: "error obteniendo extensión"}
 		}
 
-		url, err := helpers.SaveImageToDirectory(obj.File, uuidFile, extension, os.Getenv("PDF"))
+		folder := os.Getenv("PDF")
+		url, err := helpers.SaveImageToDirectory(obj.File, uuidFile, extension, folder)
 		if err != nil {
 			return &dto.APIRespuestaAcciones{Codigo: 500, Mensaje: "error guardando archivo"}
 		}
@@ -290,6 +291,13 @@ func (r repositoriePostUser) Update_PostUser(obj entities.PostUsuario) *dto.APIR
 		_, err = helpers.StorageManager(objStorage)
 		if err != nil {
 			return &dto.APIRespuestaAcciones{Codigo: 500, Mensaje: err.Error()}
+		}
+
+		if oldFileName != "" {
+			err = helpers.DeleteImageFromDirectory(folder, oldFileName+oldFileExt)
+			if err != nil {
+				log.Printf("Advertencia: no se pudo eliminar archivo antiguo: %v", err)
+			}
 		}
 	}
 
@@ -310,14 +318,6 @@ func (r repositoriePostUser) Update_PostUser(obj entities.PostUsuario) *dto.APIR
 	err = tx.Commit()
 	if err != nil {
 		return &dto.APIRespuestaAcciones{Codigo: 500, Mensaje: "error finalizando transacción"}
-	}
-
-	if obj.File != nil && oldFileName != "" {
-		path := oldFileName + oldFileExt
-		err = helpers.DeleteImageFromDirectory(path)
-		if err != nil {
-			log.Printf("Advertencia: no se pudo eliminar archivo antiguo: %v", err)
-		}
 	}
 
 	return &dto.APIRespuestaAcciones{Codigo: 200, Mensaje: "registro actualizado correctamente"}
@@ -395,8 +395,7 @@ func (r repositoriePostUser) Delete_PostUser(id uint, clains helpers.CustomClaim
 	}
 
 	if fileName != "" {
-		path := os.Getenv("PDF") + "/" + fileName
-		err = helpers.DeleteImageFromDirectory(path)
+		err = helpers.DeleteImageFromDirectory(os.Getenv("PDF"), fileName)
 		if err != nil {
 			_ = helpers.InsertLogsError(r.db, "storage", "error borrando la imagen "+err.Error())
 		}
