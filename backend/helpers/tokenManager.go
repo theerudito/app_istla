@@ -20,7 +20,7 @@ func getSecretKey() []byte {
 
 	_ = godotenv.Load()
 
-	key := os.Getenv("SECRET_KEY")
+	key := os.Getenv("Secret_Key")
 	if key == "" {
 		fmt.Println("⚠️  WARNING: SECRET_KEY no está definido en las variables de entorno.")
 	}
