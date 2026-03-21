@@ -11,6 +11,8 @@ import (
 func SetupRoutes(app *fiber.App, controller *handlers.HandlersRegister) {
 	allowedOrigins := map[string]bool{
 		os.Getenv("URL_Frontend"): true,
+		"http://127.0.0.1:1000":   true,
+		"http://localhost:1000":   true,
 		"http://localhost:5173":   true,
 	}
 

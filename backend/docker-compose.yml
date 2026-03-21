@@ -5,7 +5,7 @@ services:
     build: .
     container_name: backend_istla
     ports:
-      - "2000:2000"
+      - "6000:6000"
     env_file:
       - .env
     environment:

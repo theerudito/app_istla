@@ -32,6 +32,6 @@ RUN mkdir -p resources imagen pdf
 RUN chmod +x /app/init.sh /app/istla
 
 
-EXPOSE 2000
+EXPOSE 6000
 
 CMD ["./istla"]
