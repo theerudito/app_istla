@@ -207,12 +207,11 @@ Modelo Register
     "id_perfil" : 1
 }
 
-Modelos POST
-<img width="879" height="242" alt="imagen" src="https://github.com/user-attachments/assets/ede8149d-be51-480c-9fdf-9a8747035c5a" />
+<h2>Modelos POST</h2>
+<img src="https://github.com/user-attachments/assets/ede8149d-be51-480c-9fdf-9a8747035c5a" width="600" />
 
-
-Modelos PUT
-<img width="884" height="278" alt="imagen" src="https://github.com/user-attachments/assets/52d9e1f3-c201-47a3-911a-2d2a1b607227" />
+<h2>Modelos PUT</h2>
+<img src="https://github.com/user-attachments/assets/52d9e1f3-c201-47a3-911a-2d2a1b607227" width="600" />
 
 
 
