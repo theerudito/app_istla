@@ -207,11 +207,20 @@ Modelo Register
     "id_perfil" : 1
 }
 
-<h2>Modelos POST</h2>
-<img src="https://github.com/user-attachments/assets/ede8149d-be51-480c-9fdf-9a8747035c5a" width="600" />
+Modelos POST
+Tipo Contendio FormData
+"description":"HOLA",
+usuario_id : "1"
+file : el archivo pdf
+usuario_creacion : "JORGE"
 
-<h2>Modelos PUT</h2>
-<img src="https://github.com/user-attachments/assets/52d9e1f3-c201-47a3-911a-2d2a1b607227" width="600" />
+Modelos PUT<
+Tipo Contendio FormData
+post_user_id" : "1",
+"description":"HOLA",
+usuario_id : "1"
+file : el archivo pdf
+usuario_modificacion : "JORGE"
 
 
 
