@@ -1,5 +1,12 @@
-📂 Estructura del proyecto (ejemplo)
+# 🚀 Backend API - Go + Fiber
 
+Aplicación backend desarrollada con **Go (Golang)** utilizando el framework **Fiber**, con base de datos **PostgreSQL**, autenticación con **JWT** y despliegue mediante **Docker**.
+
+---
+
+## 📂 Estructura del Proyecto
+
+```bash
 backend/
 ├── db/                 # Configuración y conexión a base de datos
 ├── handler/            # Controladores (manejo de requests)
@@ -18,6 +25,7 @@ backend/
 └── init.sh             # Script de inicialización
 
 🔐 Variables de Entorno
+
 Configura estas variables antes de ejecutar el proyecto:
 # Frontend
 URL_FRONTEND=http://localhost:5173
@@ -71,7 +79,9 @@ newgrp docker
 # Iniciar Docker
 sudo service docker start
 
-🌐 Instalación de Nginx el servidor web potente
+🌐 Instalación de Nginx
+
+Servidor web para producción:
 sudo apt install nginx -y
 
 🔥 Configuración de Firewall (UFW)
@@ -92,21 +102,33 @@ sudo ufw status numbered
 
 🚀 Uso con Docker
 ▶️ Crear y levantar contenedores
-docker-compose up --build  
+docker-compose up --build
 
 🛑 Detener y eliminar contenedores
 docker-compose down -v
+
 🧰 Portainer (Opcional)
 
-Portainer permite administrar Docker desde una interfaz web.
+Interfaz web para administrar Docker.
 
 ▶️ Instalación
-docker run -d -p 8000:8000 -p 9443:9443 --name portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:lts
+docker run -d \
+-p 8000:8000 \
+-p 9443:9443 \
+--name portainer \
+--restart=always \
+-v /var/run/docker.sock:/var/run/docker.sock \
+-v portainer_data:/data \
+portainer/portainer-ce:lts
 
-ABRIR LA URL DE PORTAINER Y LOGIAMRE admin usario
+🌐 Acceso
 https://localhost:9443
+Usuario: admin
+Configura la contraseña en el primer acceso
 
-Perfecto 🔥 — si tu API en Go con Fiber ya está corriendo algo asi verian.
+🚀 Estado del Servidor (Fiber)
+
+Cuando la API está corriendo, verás algo como:
 ┌───────────────────────────────────────────┐
 │               🚀 Fiber v2                 │
 │                                           │
@@ -115,3 +137,5 @@ Perfecto 🔥 — si tu API en Go con Fiber ya está corriendo algo asi verian.
 │   PID: 12345                              │
 └───────────────────────────────────────────┘
 
+🌐 Base URL
+http://localhost:5002/api/v1/
