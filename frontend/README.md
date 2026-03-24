@@ -61,3 +61,6 @@ sudo systemctl reload nginx
 
 Tu aplicación estará disponible en:
 http://tu-dominio.com en este caso seria como localhost en fururas actualizaciones podriamos configurar usando un dominio + dns o deploy automático (CI/CD)
+
+
+O Tambien podremos solo usar el comando npm run dev para correr la aplicacion del frontend
