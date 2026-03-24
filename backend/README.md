@@ -139,3 +139,61 @@ Cuando la API está corriendo, verás algo como:
 
 🌐 Base URL
 http://localhost:5002/api/v1/
+
+📌 Notas
+Verifica que los puertos estén disponibles antes de ejecutar Docker.
+Configura correctamente las variables de entorno.
+Ajusta las URLs según tu entorno (local o red).
+
+
+---
+
+### 🔐 Autenticación
+
+| Método | Endpoint     | Descripción              | Auth |
+|--------|-------------|--------------------------|------|
+| POST   | /login      | Iniciar sesión           | ❌   |
+| POST   | /register   | Registrar usuario        | ❌   |
+
+---
+
+### 👤 Profiles
+
+| Método | Endpoint     | Descripción              | Auth |
+|--------|-------------|--------------------------|------|
+| GET    | /profiles   | Obtener perfiles         | ✅ JWT |
+
+---
+
+### 📝 Posts
+
+| Método | Endpoint                      | Descripción                     | Auth |
+|--------|------------------------------|---------------------------------|------|
+| GET    | /post                        | Obtener todos los posts         | ✅ JWT |
+| GET    | /post/get_by_user/:id        | Obtener posts por usuario       | ✅ JWT |
+| POST   | /post                        | Crear nuevo post                | ✅ JWT |
+| PUT    | /post                        | Actualizar post                 | ✅ JWT |
+| DELETE | /post/:id                    | Eliminar post                   | ✅ JWT |
+
+---
+
+### 📁 Recursos
+
+| Método | Endpoint                         | Descripción                  | Auth |
+|--------|----------------------------------|------------------------------|------|
+| GET    | /resources/:folder/:file         | Obtener archivos (img/pdf)   | ❌   |
+
+---
+
+## 🔐 Autenticación (JWT)
+
+Los endpoints protegidos requieren un token JWT en el header:
+
+```http
+Authorization: Bearer <tu_token>
+
+
+Adiocal se deja la collecion de postman para probar los endposit esta en el directorio raiz del proyecto
+
+
+
