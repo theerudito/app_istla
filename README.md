@@ -50,3 +50,5 @@ El sistema utiliza JWT para:
 Login de usuarios
 Protección de rutas
 Validación de sesiones
+
+Favor Revisar los README de la carpeta forntend y backend alli que encuentran las indicaciones de cada proyecto
