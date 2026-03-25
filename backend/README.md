@@ -198,6 +198,7 @@ Modelo Login
 }
 Modelo Register
 {
+    "post_user_id" : // solo para editar
     "identificacion" : "1721457495",
     "nombres" : "JORGE",
     "apellidos" : "LOOR",
