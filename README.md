@@ -96,6 +96,9 @@ El sistema implementa autenticación basada en **JWT (JSON Web Tokens)**.
 - Inicio de sesión seguro  
 - Protección de rutas  
 - Validación de sesiones  
-- Control de acceso a endpoints protegidos  
+- Control de acceso a endpoints protegidos
+
+### 😊 Recomendacions
+Revisar los README de la carpeta FRONTEND y BACKEND donde se encuenntra la ejecucion de cada proyecto
 
 ---
